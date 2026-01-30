@@ -12,6 +12,13 @@
 ## 🛠 快速使用指南
 
 ### 1. 阿里云/腾讯云 全新环境初始化
+
 包含：Nginx 安装、Web 目录权限设置、默认 Conf 配置、JDK 17 安装及环境变量配置。
+
 ```bash
 curl -sSL [https://raw.githubusercontent.com/你的用户名/shell_scripts/main/init/aliyun_centos.sh](https://raw.githubusercontent.com/你的用户名/shell_scripts/main/init/aliyun_centos.sh) | bash
+
+
+### 2. Github actions CI/CD
+
+

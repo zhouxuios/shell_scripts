@@ -1,0 +1,55 @@
+# 用于 github actions 的 ci/cd 部署工作流 
+# 同时支持远程服务器和 github pages 的部署
+
+name: GitHub Pages and Remote Server Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9 # Node 22 建议搭配最新的 pnpm 9
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22 # 👈 完美匹配你本地环境
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build Project
+        run: pnpm run build
+
+      # ... 后续部署到 GitHub Pages 和 远程服务器 的步骤保持不变 ...
+      # 部署到 GitHub Pages,第一次git actions执行成功会创建 gh-pages 分支
+      # 需要在仓库的 Settings > Pages 中设置分支为 gh-pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          enable_jekyll: false 
+      
+      # 部署到远程服务器,需要在 GitHub 仓库的 Secrets 中配置 REMOTE_HOST, REMOTE_USER, SSH_PRIVATE_KEY
+      - name: Deploy to Remote Server via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}  
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "dist/*"
+          target: "/var/www/web/static"   # 远程服务器静态资源目录
+          strip_components: 1
